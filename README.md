@@ -1,13 +1,13 @@
-<img src=https://cloud.githubusercontent.com/assets/3819012/21799537/1dab0e90-d733-11e6-88ab-76ebd37275c7.jpg /> 
+# Watashino LaTeX Bot
 
-LaTeX rendering bot core with Telegram handlers (original project) and a Discord bot interface. The Discord bot exposes the same functionality with slash commands and UI.
+Watashino LaTeX Bot renders your LaTeX into crisp PNGs and vector PDFs right inside Discord. It supports slash commands, buttons, modals, and even rendering directly from chat messages.
 
-## Description and general usage
-This bot converts LaTeX expressions to .png images when called in inline mode (@inlatexbot \<your expression\>) and then shows you the image it has generated from your code. Everything happens live, so you can just gradually type and continuously monitor the result. When expression contains errors, they will be displayed instead of the image. Finally, when you are ready, click or tap the suggested picture to send it.
+Example renders:
 
-<img width=200 src=https://cloud.githubusercontent.com/assets/3819012/21800504/56bf38ec-d737-11e6-8b8b-e4e3b90d43ae.png /><img width=200 src=https://cloud.githubusercontent.com/assets/3819012/21800503/56be411c-d737-11e6-8598-e43fb7126eb3.png /><img width=200 src=https://cloud.githubusercontent.com/assets/3819012/21800505/56e9283c-d737-11e6-9195-1be0c2ca046c.png />
-
-Since v2.0 the bot also supports direct conversion of LaTeX expressions in a conversation. You can send it messages containing the code, and it will respond with a .pdf file and an image containing the expression. This allows larger (than in the inline mode) expressions to be converted; moreover, .pdf file contains graphics in vector format, so further processing of the expression in a VG application, i.e. in Inkscape, is possible.
+<p>
+	<img alt="x^2" width="220" src="resources/test/xsquared.png" />
+	<img alt="x^2 repeated" width="220" src="resources/test/xsquared10times.png" />
+</p>
 
 ## Discord bot usage
 
@@ -42,9 +42,9 @@ python main.py
 ```
 
 Slash commands:
-- `/start` — greeting and demo
+- `/start` — welcome and quick usage guide
 - `/latex code:"$x^2$"` — render to PNG and PDF
-- `/settings` — toggle caption code on/off with buttons
+- `/settings` — configure caption, DPI, and edit preamble
 - `/setdpi 300` — set rendering DPI (100-1000)
 - `/getmypreamble` — show your current preamble
 - `/getdefaultpreamble` — show default preamble
@@ -80,18 +80,16 @@ The main feature of the bot is the customizable preamble used in the document in
 <your expression goes here>
 \end{document}
 ```
-This means you can inlude the packages that you need or define your own expressions and commands which will be afterwards available in the inline mode. The bot uses full installation of Texlive2016, so any of its packages should be within the bot's reach.
+This means you can include the packages that you need or define your own expressions and commands which will afterwards be available when rendering. The bot works with a standard LaTeX installation (TeX Live or MiKTeX) and Ghostscript.
 
 Additionally, it is possible to change how the messages will look like after they've been sent, i.e. include the raw expression in the caption of the image or not, or set the resolution of the picture to control its size.
 
-The customization applies both to the inline and standard modes.
+The customization applies both to slash commands and chat message rendering.
 
-## Limitations
-The expression length is limited by the length of the inline query to approximately 250 characters (despite the statement in the API docs that inline queries can span up to 512 characters)
+## Notes
+- Preamble length in the modal is limited to 4000 characters for safety.
+- Rendering dependencies: `pdflatex` and Ghostscript must be available on PATH.
 
-The preamble length is currently limited by 4000 characters as the longest messages that Telegram can send in one piece are of 4096 chars.
-
-Bot should be currently online, so in case it's down it's either maintenance or some emergency. Also, feel free to open an issue if you find a bug or contact me <a href=http://t.me/fedorovgp>directly</a> in Telegram should you have any related questions.
-
-## Support the project
-https://www.donationalerts.com/r/glebfedorov
+## Assets
+- Example images used above are located under `resources/test/`.
+- You can replace or add your own examples and reference them in this README.

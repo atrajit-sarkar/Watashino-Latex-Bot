@@ -162,7 +162,7 @@ class InLatexDiscordBot(commands.Bot):
 bot = InLatexDiscordBot()
 
 
-@bot.tree.command(name="start", description="Introduction and demo of the LaTeX bot")
+@bot.tree.command(name="start", description="Welcome and quick usage guide for Watashino LaTeX Bot")
 async def start_cmd(interaction: discord.Interaction):
     user_id = interaction.user.id
     # Register known user
@@ -171,12 +171,19 @@ async def start_cmd(interaction: discord.Interaction):
     except Exception:
         bot.um.setUser(user_id, {})
     await interaction.response.defer(ephemeral=True)
-    await interaction.followup.send(bot.rm.getString("greeting_line_one"), ephemeral=True)
-    # send demo image if available
-    demo_path = os.path.join("resources", "demo.png")
-    if os.path.exists(demo_path):
-        await interaction.followup.send(file=discord.File(demo_path), ephemeral=True)
-    await interaction.followup.send(bot.rm.getString("greeting_line_two"), ephemeral=True)
+    guide = (
+        "Welcome to Watashino LaTeX Bot!\n\n"
+        "How to use:\n"
+        "- Use the slash command `/latex` with your code: e.g. `$x^2$`.\n"
+        "- Or just type LaTeX directly in chat/DMs: `$e^{i\\pi}+1=0$`.\n"
+        "- Display math: `\\[\\int_0^1 x^2\\,dx\\]`.\n"
+        "- Code fences: ```latex ... ``` will also render.\n\n"
+        "Tips:\n"
+        "- Open `/settings` to change DPI and edit your preamble.\n"
+        "- `/getmypreamble` and `/setcustompreamble` manage your LaTeX preamble.\n"
+        "- Need help with dependencies? Try `/diagnose`.\n"
+    )
+    await interaction.followup.send(guide, ephemeral=True)
 
 
 @bot.tree.command(name="latex", description="Render a LaTeX expression to image (and PDF)")
