@@ -2,12 +2,17 @@
 
 Watashino LaTeX Bot renders your LaTeX into crisp PNGs and vector PDFs right inside Discord. It supports slash commands, buttons, modals, and even rendering directly from chat messages.
 
-Example renders:
+### How to write direct latex code to bot's dm:
 
 <p>
-	<img alt="x^2" width="220" src="resources/test/xsquared.png" />
-	<img alt="x^2 repeated" width="220" src="resources/test/xsquared10times.png" />
+	<img alt="x^2" width="420" src="/assets/howtowritecodedirectlyinbotsdm.png" />
 </p>
+
+### How to write inline code if you prefer to:
+<img alt="x^2 repeated" width="420" src="/assets/inlineExpressionsusage.png" />
+
+### How your full document render will look like:
+<img alt="x^2 repeated" width="420" src="/assets/renderedEquations.png" />
 
 ## Discord bot usage
 

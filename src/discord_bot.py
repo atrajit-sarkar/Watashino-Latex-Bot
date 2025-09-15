@@ -141,19 +141,38 @@ class InLatexDiscordBot(commands.Bot):
             try:
                 user_id = message.author.id
                 session_id = f"{message.id}_{user_id}"
-                image_stream, pdf_stream = self.converter.convertExpression(content_for_render, user_id, session_id, returnPdf=True)
-                image_stream.seek(0)
-                pdf_stream.seek(0)
-                files = [
-                    discord.File(fp=image_stream, filename="expression.png"),
-                    discord.File(fp=pdf_stream, filename="expression.pdf")
-                ]
+                wait_msg = None
+                async with message.channel.typing():
+                    # Let user know we're working
+                    try:
+                        wait_msg = await message.reply("Rendering your LaTeX… please wait ⏳")
+                    except Exception:
+                        pass
+                    image_stream, pdf_stream = self.converter.convertExpression(content_for_render, user_id, session_id, returnPdf=True)
+                    image_stream.seek(0)
+                    pdf_stream.seek(0)
+                    files = [
+                        discord.File(fp=image_stream, filename="expression.png"),
+                        discord.File(fp=pdf_stream, filename="expression.pdf")
+                    ]
+                # Send result and remove wait message if possible
                 await message.reply(files=files)
+                if wait_msg:
+                    try:
+                        await wait_msg.delete()
+                    except Exception:
+                        pass
             except ValueError as err:
-                await message.reply(f"Syntax error or processing issue:\n{err}")
+                try:
+                    await message.reply(f"Syntax error or processing issue:\n{err}")
+                except Exception:
+                    pass
             except Exception as err:
                 self.logger.warn("Unhandled exception in message render: %s", str(err))
-                await message.reply(f"Unexpected error during rendering. {type(err).__name__}: {err}")
+                try:
+                    await message.reply(f"Unexpected error during rendering. {type(err).__name__}: {err}")
+                except Exception:
+                    pass
 
         # Keep command processing working
         await self.process_commands(message)

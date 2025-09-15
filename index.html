@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Watashino LaTeX Bot — Beautiful LaTeX Rendering for Discord</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Watashino LaTeX Bot renders beautiful LaTeX expressions directly in Discord. Use slash commands or chat messages to create crisp PNGs and vector PDFs." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="twinkling"></div>
+  
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7v10c0 5.55 3.84 9.739 9 11 5.16-1.261 9-5.45 9-11V7l-10-5z"/>
+            <text x="12" y="16" text-anchor="middle" font-size="8" fill="white">𝓛</text>
+          </svg>
+        </div>
+        <div class="title">
+          <span class="title-main">Watashino</span>
+          <span class="title-sub">LaTeX Bot</span>
+        </div>
+      </div>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#commands">Commands</a>
+        <a href="#examples">Examples</a>
+        <a href="#setup">Setup</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">✨ Beautiful LaTeX Rendering</div>
+        <h1>Transform your math into <span class="gradient-text">stunning visuals</span></h1>
+        <p>Watashino LaTeX Bot brings professional-quality mathematical typesetting to Discord. Create crisp PNGs and vector PDFs with simple commands or natural chat messages.</p>
+        <div class="cta">
+          <a class="btn primary glow" href="#commands">Explore Commands</a>
+          <a class="btn glass" href="#examples">See Examples</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-number">⚡</div>
+            <div class="stat-label">Instant Rendering</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">🎨</div>
+            <div class="stat-label">Custom Preambles</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">📱</div>
+            <div class="stat-label">Chat & Commands</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section glass-section" id="features">
+      <div class="container">
+        <h2>Why Choose Watashino?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h3>Natural Chat Integration</h3>
+            <p>Type LaTeX directly in chat or DMs. The bot automatically detects and renders your expressions with typing indicators.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎛️</div>
+            <h3>Powerful Customization</h3>
+            <p>Configure DPI, toggle captions, and edit your LaTeX preamble with an intuitive modal interface.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📄</div>
+            <h3>Dual Output Formats</h3>
+            <p>Get both PNG images for quick sharing and vector PDFs for professional documents and further editing.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚙️</div>
+            <h3>Smart Processing</h3>
+            <p>Auto-detects inline vs display math, supports code fences, and preserves document margins for full LaTeX files.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="commands">
+      <div class="container">
+        <h2>Command Reference</h2>
+        <div class="cards">
+          <div class="card spotlight">
+            <div class="card-header">
+              <h3>/latex</h3>
+              <span class="badge primary">Essential</span>
+            </div>
+            <p>Transform your LaTeX expression into beautiful PNG and PDF outputs.</p>
+            <div class="code-block">
+              <pre><code>/latex code: "$\\int_0^1 x^2\\,dx = \\frac{1}{3}$"</code></pre>
+            </div>
+            <ul class="feature-list">
+              <li>Crisp PNG preview with customizable DPI</li>
+              <li>Vector PDF for professional use</li>
+              <li>Uses your custom preamble automatically</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3>/start</h3>
+              <span class="badge">Welcome</span>
+            </div>
+            <p>Get a warm welcome and comprehensive usage guide to get started quickly.</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3>/settings</h3>
+              <span class="badge secondary">Interactive</span>
+            </div>
+            <p>Open an interactive panel with buttons and modals for easy configuration.</p>
+            <ul class="feature-list">
+              <li>Toggle code in caption with one click</li>
+              <li>Edit your preamble in a full-screen modal</li>
+              <li>Real-time settings updates</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3>/setdpi</h3>
+              <span class="badge">Quality</span>
+            </div>
+            <p>Fine-tune image resolution from 100 to 1000 DPI for perfect clarity.</p>
+            <div class="code-block">
+              <pre><code>/setdpi dpi: 400</code></pre>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3>/getmypreamble</h3>
+              <span class="badge">Info</span>
+            </div>
+            <p>View your current LaTeX preamble configuration.</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3>/diagnose</h3>
+              <span class="badge warning">Debug</span>
+            </div>
+            <p>Check if pdflatex and Ghostscript are properly installed and accessible.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="examples">
+      <div class="container">
+        <h2>Beautiful Examples</h2>
+        <div class="examples-showcase">
+          <div class="example-card">
+            <div class="example-header">
+              <h4>Simple Expressions</h4>
+              <span class="example-type">Inline Math</span>
+            </div>
+            <div class="code-preview">
+              <div class="code-section">
+                <div class="code-label">Input:</div>
+                <div class="code-block">
+                  <pre><code>$x^2 + y^2 = r^2$</code></pre>
+                </div>
+              </div>
+              <div class="preview-section">
+                <div class="preview-label">Result:</div>
+                <div class="preview">
+                  <img src="resources/test/xsquared.png" alt="Simple math example" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="example-card">
+            <div class="example-header">
+              <h4>Complex Equations</h4>
+              <span class="example-type">Display Math</span>
+            </div>
+            <div class="code-preview">
+              <div class="code-section">
+                <div class="code-label">Input:</div>
+                <div class="code-block">
+                  <pre><code>\\[\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}\\]</code></pre>
+                </div>
+              </div>
+              <div class="preview-section">
+                <div class="preview-label">Result:</div>
+                <div class="preview">
+                  <img src="resources/test/xsquared10times.png" alt="Complex equation example" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="example-card highlight">
+            <div class="example-header">
+              <h4>Chat Integration</h4>
+              <span class="example-type">Natural Flow</span>
+            </div>
+            <div class="chat-demo">
+              <div class="message user">
+                <div class="message-content">\\frac{d}{dx}[\\sin(x)] = \\cos(x)</div>
+              </div>
+              <div class="typing-indicator">
+                <div class="typing-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <span>Watashino LaTeX Bot is typing...</span>
+              </div>
+              <div class="message bot">
+                <div class="message-content">
+                  <div class="attachment">📎 expression.png • expression.pdf</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section glass-section" id="setup">
+      <div class="container">
+        <h2>Quick Setup Guide</h2>
+        <div class="setup-grid">
+          <div class="setup-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Dependencies</h3>
+              <ul class="setup-list">
+                <li>Install Python 3.9+</li>
+                <li>Install Ghostscript</li>
+                <li>Install TeX Live or MiKTeX</li>
+              </ul>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Configuration</h3>
+              <ul class="setup-list">
+                <li>Copy <code>.env.example</code> to <code>.env</code></li>
+                <li>Add your Discord bot token</li>
+                <li>Optional: Enable message content intent</li>
+              </ul>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Launch</h3>
+              <ul class="setup-list">
+                <li><code>pip install -r requirements.txt</code></li>
+                <li><code>python main.py</code></li>
+                <li>Invite bot to your server</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pro-tips">
+          <h3>💡 Pro Tips</h3>
+          <div class="tips-grid">
+            <div class="tip">
+              <strong>Performance:</strong> Set DPI to 300-400 for best balance of quality and file size.
+            </div>
+            <div class="tip">
+              <strong>Customization:</strong> Use <code>/settings</code> to access the preamble editor with syntax highlighting.
+            </div>
+            <div class="tip">
+              <strong>Debugging:</strong> Run <code>/diagnose</code> if rendering fails to check dependencies.
+            </div>
+            <div class="tip">
+              <strong>Chat Mode:</strong> Enable message content intent for seamless chat-based rendering.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <strong>Watashino LaTeX Bot</strong>
+          <p>Beautiful mathematical typesetting for Discord</p>
+        </div>
+        <div class="footer-links">
+          <h4>Resources</h4>
+          <a href="README.md">Documentation</a>
+          <a href="https://discord.com/developers/applications" target="_blank" rel="noopener">Discord Developers</a>
+          <a href="https://www.latex-project.org/" target="_blank" rel="noopener">LaTeX Project</a>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="#commands">Commands</a>
+          <a href="#examples">Examples</a>
+          <a href="#setup">Setup</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Watashino LaTeX Bot. Made with ❤️ for the math community.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
