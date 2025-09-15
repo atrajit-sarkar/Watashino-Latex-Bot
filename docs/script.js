@@ -118,23 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Typing animation for hero
+  // Typing animation for hero (disabled to preserve HTML structure)
   const heroTitle = document.querySelector('.hero h1');
   if (heroTitle) {
-    const text = heroTitle.innerHTML;
-    heroTitle.innerHTML = '';
+    // Simple fade-in animation instead of typing to preserve HTML
+    heroTitle.style.opacity = '0';
+    heroTitle.style.transform = 'translateY(20px)';
+    heroTitle.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
     
-    let i = 0;
-    const typeWriter = () => {
-      if (i < text.length) {
-        heroTitle.innerHTML += text.charAt(i);
-        i++;
-        setTimeout(typeWriter, 50);
-      }
-    };
-    
-    // Start typing after a short delay
-    setTimeout(typeWriter, 500);
+    setTimeout(() => {
+      heroTitle.style.opacity = '1';
+      heroTitle.style.transform = 'translateY(0)';
+    }, 500);
   }
 
   // Parallax effect for background
