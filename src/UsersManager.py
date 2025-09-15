@@ -1,11 +1,17 @@
 import pickle
 from multiprocessing import Lock
+import os
 
 class UsersManager():
     
     def __init__(self, usersFile = "./resources/users.pkl"):
         self._usersFile = usersFile
         self._lock = Lock()
+        # Ensure file exists
+        os.makedirs(os.path.dirname(self._usersFile), exist_ok=True)
+        if not os.path.exists(self._usersFile):
+            with open(self._usersFile, "wb") as f:
+                pickle.dump({}, f)
     
     def getKnownUsers(self):
         with self._lock:

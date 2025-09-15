@@ -1,5 +1,6 @@
 import pickle
 from multiprocessing import Lock
+import os
 
 from src.LoggingServer import LoggingServer
 
@@ -9,6 +10,11 @@ class UserOptionsManager():
     def __init__(self, optionsFile = "./resources/options.pkl"):
         self._optionsFile = optionsFile
         self._lock = Lock()
+        # Ensure file exists
+        os.makedirs(os.path.dirname(self._optionsFile), exist_ok=True)
+        if not os.path.exists(self._optionsFile):
+            with open(self._optionsFile, "wb") as f:
+                pickle.dump({}, f)
     
     def getDpiOption(self, userId):
         try:

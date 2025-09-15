@@ -4,6 +4,9 @@ from src.PreambleManager import PreambleManager
 from src.LoggingServer import LoggingServer
 import io
 import re
+import shutil
+import os
+import glob
 
 
 class LatexConverter():
@@ -16,10 +19,13 @@ class LatexConverter():
 
     def extractBoundingBox(self, dpi, pathToPdf):
         try:
-            bbox = check_output("gs -q -dBATCH -dNOPAUSE -sDEVICE=bbox " + pathToPdf,
-                                stderr=STDOUT, shell=True).decode("ascii")
+            gs = self._get_gs_executable()
+            bbox = check_output([gs, "-q", "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox", pathToPdf],
+                                stderr=STDOUT).decode("ascii")
         except CalledProcessError:
             raise ValueError("Could not extract bounding box! Empty expression?")
+        except FileNotFoundError:
+            raise ValueError("Ghostscript not found. Please install Ghostscript and ensure 'gs', 'gswin64c' or 'gswin32c' is on PATH.")
         try:
             bounds = [int(_) for _ in bbox[bbox.index(":")+2:bbox.index("\n")].split(" ")]
         except ValueError:
@@ -62,32 +68,62 @@ class LatexConverter():
         
     def pdflatex(self, fileName):
         try:
-            check_output(['pdflatex', "-interaction=nonstopmode", "-output-directory", 
-                    "build", fileName], stderr=STDOUT, timeout=5)
-        except CalledProcessError as inst:
-            with open(fileName[:-3]+"log", "r") as f:
+            check_output([
+                'pdflatex',
+                '-interaction=nonstopmode',
+                '-output-directory', 'build',
+                fileName
+            ], stderr=STDOUT, timeout=5)
+        except CalledProcessError:
+            with open(fileName[:-3] + "log", "r") as f:
                 msg = self.getError(f.readlines())
                 self.logger.debug(msg)
-                raise ValueError(msg)
+            raise ValueError(msg)
         except TimeoutExpired:
-                msg = "Pdflatex has likely hung up and had to be killed. Congratulations!"
-                raise ValueError(msg)
+            msg = "Pdflatex has likely hung up and had to be killed. Congratulations!"
+            raise ValueError(msg)
     
     def cropPdf(self, sessionId): # TODO: this is intersecting with the png part
-        bbox = check_output("gs -q -dBATCH -dNOPAUSE -sDEVICE=bbox build/expression_file_%s.pdf"%sessionId, 
-                            stderr=STDOUT, shell=True).decode("ascii")
-        bounds = tuple([int(_) for _ in bbox[bbox.index(":")+2:bbox.index("\n")].split(" ")])
-
-        command_crop = 'gs -o build/expression_file_cropped_%s.pdf -sDEVICE=pdfwrite\
-                         -c "[/CropBox [%d %d %d %d]"   -c " /PAGES pdfmark" -f build/expression_file_%s.pdf'\
-                         %((sessionId,)+bounds+(sessionId,))
-        check_output(command_crop, stderr=STDOUT, shell=True)
+        try:
+            gs = self._get_gs_executable()
+            bbox = check_output([gs, "-q", "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox", f"build/expression_file_{sessionId}.pdf"], 
+                                stderr=STDOUT).decode("ascii")
+        except FileNotFoundError:
+            raise ValueError("Ghostscript not found. Please install Ghostscript and ensure it is on PATH.")
+        llx, lly, urx, ury = tuple([int(_) for _ in bbox[bbox.index(":")+2:bbox.index("\n")].split(" ")])
+        width_pts = urx - llx
+        height_pts = ury - lly
+        out_pdf = f"build/expression_file_cropped_{sessionId}.pdf"
+        in_pdf = f"build/expression_file_{sessionId}.pdf"
+        # Set exact page size and translate content so the expression sits at origin
+        try:
+            check_output([gs, "-o", out_pdf, "-sDEVICE=pdfwrite",
+                          f"-dDEVICEWIDTHPOINTS={width_pts}", f"-dDEVICEHEIGHTPOINTS={height_pts}", "-dFIXEDMEDIA",
+                          "-c", f"<</PageOffset [{-llx} {-lly}]>> setpagedevice",
+                          "-f", in_pdf], stderr=STDOUT)
+        except FileNotFoundError:
+            raise ValueError("Ghostscript not found. Please install Ghostscript and ensure it is on PATH.")
             
     def convertPdfToPng(self, dpi, sessionId, bbox):
-        command = 'gs  -o build/expression_%s.png -r%d -sDEVICE=pngalpha  -g%dx%d  -dLastPage=1 \
-                    -c "<</Install {%d %d translate}>> setpagedevice" -f build/expression_file_%s.pdf'\
-                    %((sessionId, dpi)+bbox+(sessionId,))
-        check_output(command, stderr=STDOUT, shell=True)
+        gs = self._get_gs_executable()
+        out_png = f"build/expression_{sessionId}.png"
+        in_pdf = f"build/expression_file_{sessionId}.pdf"
+        width, height, tx, ty = bbox
+        # Default to white background to avoid black/transparent appearance in some viewers.
+        transparent = os.environ.get("LATEXBOT_TRANSPARENT", "").lower() in ("1", "true", "yes", "on")
+        device = "pngalpha" if transparent else "png16m"
+        args = [gs, "-o", out_png, f"-r{dpi}", f"-g{int(width)}x{int(height)}", "-dLastPage=1",
+                "-sDEVICE=" + device,
+                "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
+                "-c", f"<</Install {{{int(tx)} {int(ty)} translate}}>> setpagedevice",
+                "-f", in_pdf]
+        if not transparent:
+            # White background for non-alpha device
+            args.insert(6, "-dBackgroundColor=16#FFFFFF")
+        try:
+            check_output(args, stderr=STDOUT)
+        except FileNotFoundError:
+            raise ValueError("Ghostscript not found. Please install Ghostscript and ensure it is on PATH.")
 
     def convertExpression(self, expression, userId, sessionId, returnPdf = False):
 
@@ -106,13 +142,17 @@ class LatexConverter():
             finally:
                 fileString = preamble+"\n\\begin{document}\n"+expression+"\n\\end{document}"
 
+        os.makedirs("build", exist_ok=True)
         with open("build/expression_file_%s.tex"%sessionId, "w+") as f:
             f.write(fileString)
         
         dpi = self._userOptionsManager.getDpiOption(userId)
         
         try:
-            self.pdflatex("build/expression_file_%s.tex"%sessionId)
+            try:
+                self.pdflatex("build/expression_file_%s.tex"%sessionId)
+            except FileNotFoundError:
+                raise ValueError("pdflatex not found. Please install a LaTeX distribution (TeX Live or MiKTeX) and ensure 'pdflatex' is on PATH.")
                 
             bbox = self.extractBoundingBox(dpi, "build/expression_file_%s.pdf"%sessionId)
             bbox = self.correctBoundingBoxAspectRaito(dpi, bbox)
@@ -132,5 +172,22 @@ class LatexConverter():
                 return imageBinaryStream
                 
         finally:
-            check_output(["rm build/*_%s.*"%sessionId], stderr=STDOUT, shell=True)
+            # Cross-platform cleanup
+            try:
+                for f in glob.glob(os.path.join("build", f"*_{sessionId}.*")):
+                    try:
+                        os.remove(f)
+                    except FileNotFoundError:
+                        pass
+            except Exception:
+                pass
+
+    def _get_gs_executable(self):
+        # Try common Ghostscript executables across platforms
+        for name in ("gs", "gswin64c", "gswin32c"):
+            path = shutil.which(name)
+            if path:
+                return path
+        # Fallback to 'gs' which will raise later if missing
+        return "gs"
         

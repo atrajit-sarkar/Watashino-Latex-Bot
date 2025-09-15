@@ -1,0 +1,50 @@
+/* Global styles */
+:root { --bg:#0f1220; --panel:#161b2e; --panel-alt:#0f1629; --text:#dce4ff; --muted:#99a3c7; --primary:#6ea8ff; --accent:#8ec5ff; --border:#233054; }
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body{ margin:0; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: radial-gradient(1200px 800px at 80% -10%, #2a3f6a22, transparent), radial-gradient(1000px 800px at -20% 10%, #6ea8ff14, transparent), var(--bg); color:var(--text); line-height:1.5 }
+.container{ width: min(1100px, 92%); margin: 0 auto }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+
+/* Header */
+.site-header{ position:sticky; top:0; z-index:10; backdrop-filter: blur(8px); background: linear-gradient(#0f1220cc,#0f122090); border-bottom:1px solid var(--border) }
+.header-content{ display:flex; align-items:center; justify-content:space-between; padding: 12px 0 }
+.brand{ display:flex; align-items:center; gap:12px }
+.logo{ width:40px; height:40px; display:grid; place-items:center; background: linear-gradient(135deg,#6ea8ff,#8ec5ff); color:#0b1230; font-weight:800; border-radius:10px; box-shadow: 0 10px 30px #6ea8ff33 }
+.title{ font-weight:800; letter-spacing:.3px }
+nav a{ color:var(--muted); text-decoration:none; margin-left:18px; font-weight:600 }
+nav a:hover{ color:var(--text) }
+
+/* Hero */
+.hero{ padding: 72px 0 48px; text-align:center }
+.hero h1{ font-size: clamp(28px, 3vw, 42px); margin:0 0 12px; letter-spacing:.3px }
+.hero p{ color:var(--muted); margin:0 auto 24px; max-width: 720px }
+.btn{ display:inline-block; padding:10px 16px; border:1px solid var(--border); border-radius:10px; color:var(--text); text-decoration:none; font-weight:600; background: var(--panel) }
+.btn.primary{ background: linear-gradient(135deg, #6ea8ff, #8ec5ff); color:#0b1230; border-color: transparent }
+.btn + .btn{ margin-left:10px }
+
+/* Sections */
+.section{ padding: 56px 0; border-top:1px solid var(--border) }
+.section.alt{ background: linear-gradient(180deg, transparent, #141a2e 60%) }
+.section h2{ margin:0 0 18px; font-size: clamp(22px, 2.2vw, 28px) }
+.bullets{ color:var(--muted); padding-left:18px }
+.callout{ margin-top:16px; padding:12px 14px; background: #0e1a32; border:1px solid var(--border); border-radius:10px; color:var(--text) }
+
+/* Cards */
+.cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px }
+.card{ background: linear-gradient(180deg, var(--panel), var(--panel-alt)); border:1px solid var(--border); border-radius:12px; padding:16px }
+.card .meta{ color:var(--muted); font-size:12px; margin-top:8px }
+.code{ background:#0f1b34; color:#cfe0ff; border:1px solid var(--border); padding:10px 12px; border-radius:10px; overflow:auto }
+
+/* Examples */
+.examples{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px }
+.example{ background: linear-gradient(180deg, var(--panel), var(--panel-alt)); border:1px solid var(--border); border-radius:12px; padding:16px }
+.example-head{ font-weight:600; margin-bottom:8px }
+.preview{ margin-top:10px; background:#0c1324; border:1px dashed #2b3b67; border-radius:8px; padding:12px; display:flex; justify-content:center }
+.preview img{ max-width:100%; height:auto; display:block }
+.note{ color:var(--muted); margin-top:8px }
+
+/* Footer */
+.site-footer{ border-top:1px solid var(--border); padding: 22px 0; color:var(--muted) }
+.footer-links a{ color:var(--muted); text-decoration:none; margin-left:16px }
+.footer-links a:hover{ color:var(--text) }

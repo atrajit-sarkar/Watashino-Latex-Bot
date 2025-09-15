@@ -3,6 +3,8 @@ from multiprocessing import Lock
 import pickle as pkl
 from src.ResourceManager import ResourceManager
 from src.LoggingServer import LoggingServer
+import glob
+import os
 
 class PreambleManager():
     
@@ -13,6 +15,11 @@ class PreambleManager():
         self._preamblesFile = preamblesFile
 #        self._defaultPreamble = self.readDefaultPreamble()
         self._lock = Lock()
+        # Ensure pickle exists
+        os.makedirs(os.path.dirname(self._preamblesFile), exist_ok=True)
+        if not os.path.exists(self._preamblesFile):
+            with open(self._preamblesFile, "wb") as f:
+                pkl.dump({}, f)
         
 #    def getDefaultPreamble(self):
 #        return self._defaultPreamble
@@ -56,5 +63,13 @@ class PreambleManager():
                 self.logger.debug(msg)
             return False, self._resourceManager.getString("preamble_invalid")+"\n"+msg
         finally:
-            check_output(["rm ./build/validate_preamble.*"], stderr=STDOUT, shell=True)
+            # Cross-platform cleanup for temporary files
+            try:
+                for f in glob.glob(os.path.join("./build", "validate_preamble.*")):
+                    try:
+                        os.remove(f)
+                    except FileNotFoundError:
+                        pass
+            except Exception as _:
+                pass
     

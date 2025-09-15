@@ -3,3 +3,4 @@ build/*
 *checkpoints
 *.ipynb
 log/*
+.env

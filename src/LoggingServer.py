@@ -4,11 +4,14 @@ from threading import Thread
 import logging
 from logging import Formatter
 from logging.handlers import TimedRotatingFileHandler
+import os
 
 class LoggingServer():
 
+    # Ensure log directory exists before configuring handler
+    os.makedirs('log', exist_ok=True)
     loggingHandler = TimedRotatingFileHandler(
-        'log/inlatexbot.log', when="midnight", backupCount=100)
+        'log/inlatexbot.log', when="midnight", backupCount=100, encoding='utf-8')
     loggingFormat = '%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s'
     loggingFormatter = Formatter(fmt=loggingFormat, datefmt='%I:%M:%S')
     loggingHandler.setFormatter(loggingFormatter)
