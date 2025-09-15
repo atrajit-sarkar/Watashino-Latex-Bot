@@ -91,15 +91,25 @@ class LatexConverter():
         except FileNotFoundError:
             raise ValueError("Ghostscript not found. Please install Ghostscript and ensure it is on PATH.")
         llx, lly, urx, ury = tuple([int(_) for _ in bbox[bbox.index(":")+2:bbox.index("\n")].split(" ")])
-        width_pts = urx - llx
-        height_pts = ury - lly
+        # Add configurable margin (points). Default 24pt (~1/3 inch) for comfortable whitespace.
+        try:
+            margin = float(os.environ.get("LATEXBOT_PDF_MARGIN_PT", "24"))
+        except ValueError:
+            margin = 24.0
+        margin = max(0.0, margin)
+        # Expand bbox by margin on all sides
+        width_pts = (urx - llx) + int(2 * margin)
+        height_pts = (ury - lly) + int(2 * margin)
+        # Translate content so that original lower-left is at (margin, margin)
+        offset_x = -llx + int(margin)
+        offset_y = -lly + int(margin)
         out_pdf = f"build/expression_file_cropped_{sessionId}.pdf"
         in_pdf = f"build/expression_file_{sessionId}.pdf"
         # Set exact page size and translate content so the expression sits at origin
         try:
             check_output([gs, "-o", out_pdf, "-sDEVICE=pdfwrite",
                           f"-dDEVICEWIDTHPOINTS={width_pts}", f"-dDEVICEHEIGHTPOINTS={height_pts}", "-dFIXEDMEDIA",
-                          "-c", f"<</PageOffset [{-llx} {-lly}]>> setpagedevice",
+                          "-c", f"<</PageOffset [{offset_x} {offset_y}]>> setpagedevice",
                           "-f", in_pdf], stderr=STDOUT)
         except FileNotFoundError:
             raise ValueError("Ghostscript not found. Please install Ghostscript and ensure it is on PATH.")
@@ -164,9 +174,15 @@ class LatexConverter():
                 imageBinaryStream = io.BytesIO(f.read())
 
             if returnPdf:
-                self.cropPdf(sessionId)
-                with open("build/expression_file_cropped_%s.pdf"%sessionId, "rb") as f:
-                    pdfBinaryStream = io.BytesIO(f.read())
+                is_full_document = (r"\documentclass" in expression)
+                if is_full_document:
+                    # Preserve full document layout and margins
+                    with open("build/expression_file_%s.pdf"%sessionId, "rb") as f:
+                        pdfBinaryStream = io.BytesIO(f.read())
+                else:
+                    self.cropPdf(sessionId)
+                    with open("build/expression_file_cropped_%s.pdf"%sessionId, "rb") as f:
+                        pdfBinaryStream = io.BytesIO(f.read())
                 return imageBinaryStream, pdfBinaryStream
             else:
                 return imageBinaryStream

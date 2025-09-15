@@ -61,6 +61,13 @@ Besides `/latex`, you can simply type LaTeX in DMs or in servers (if `DISCORD_EN
 
 If you type LaTeX-like content without delimiters (e.g., `\frac{a}{b}`), the bot will auto-wrap it: single-line becomes inline `$...$`; multi-line or block-like becomes display `\[...\]`.
 
+### PDF margins and layout
+
+- For standalone expressions (not full documents), the bot produces a tightly-cropped PDF with comfortable padding around the content.
+	- Default padding is 24pt on each side. You can change it via environment variable `LATEXBOT_PDF_MARGIN_PT` (value in PostScript points; 72pt = 1 inch).
+	- Example: set `LATEXBOT_PDF_MARGIN_PT=36` for 0.5 inch padding.
+- If your input includes a full LaTeX document (`\documentclass{...}`), the bot preserves the document’s own page size and margins (no cropping applied), similar to Overleaf output.
+
 ## Customization
 The main feature of the bot is the customizable preamble used in the document into which your expression will be inserted:
 ```latex
