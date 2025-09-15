@@ -16,7 +16,7 @@ Watashino LaTeX Bot renders your LaTeX into crisp PNGs and vector PDFs right ins
 
 ## Discord bot usage
 
-A beautiful website demonstrating commands and usage is available at `index.html` in the root folder. You can open it locally in your browser or host it anywhere.
+A beautiful website demonstrating commands and usage is available at [this website](https://atrajit-sarkar.github.io/Watashino-Latex-Bot/) in the root folder. You can open it locally in your browser or host it anywhere.
 
 Prerequisites:
 - Python 3.9+
