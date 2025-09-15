@@ -17,7 +17,7 @@ Prerequisites:
 - Python 3.9+
 - Ghostscript installed and available on PATH (on Windows: gswin64c or gswin32c)
 - A Discord bot token (create at https://discord.com/developers, invite with applications.commands scope)
- - If you want the bot to read normal messages (not needed for slash commands), enable the "Message Content Intent" in the Developer Portal and set `DISCORD_ENABLE_MESSAGE_CONTENT=true` in `.env`.
+- Optional: to render messages you just type in chat (like the original Telegram flow), enable the "Message Content Intent" in the Developer Portal and set `DISCORD_ENABLE_MESSAGE_CONTENT=true` in `.env`.
 
 Setup:
 1. Install dependencies
@@ -49,6 +49,17 @@ Slash commands:
 - `/getmypreamble` — show your current preamble
 - `/getdefaultpreamble` — show default preamble
 - `/setcustompreamble` — open a modal to set your preamble
+
+### Render by just typing in chat
+
+Besides `/latex`, you can simply type LaTeX in DMs or in servers (if `DISCORD_ENABLE_MESSAGE_CONTENT=true`):
+
+- Inline math: type `$x^2 + \alpha$`
+- Display math: type `\[\int_0^1 x^2\,dx\]`
+- Full documents: paste anything containing `\documentclass{...}`
+- Code fences: use ```latex ... ``` and the bot will render the code inside
+
+If you type LaTeX-like content without delimiters (e.g., `\frac{a}{b}`), the bot will auto-wrap it: single-line becomes inline `$...$`; multi-line or block-like becomes display `\[...\]`.
 
 ## Customization
 The main feature of the bot is the customizable preamble used in the document into which your expression will be inserted:

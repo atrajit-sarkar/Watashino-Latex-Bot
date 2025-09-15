@@ -1,5 +1,6 @@
 import os
 import asyncio
+import re
 from typing import Optional
 
 import discord
@@ -120,12 +121,27 @@ class InLatexDiscordBot(commands.Bot):
             content_stripped = inner
             has_latex_markers = True
 
+        # Probable LaTeX tokens (used for auto-wrap when no explicit math delimiters are present)
+        probable_latex = bool(re.search(r"\\(frac|sum|int|sqrt|alpha|beta|gamma|delta|theta|lambda|pi|sin|cos|tan|log|ln|begin|end|mathrm|mathbf|mathbb|mathcal|vec|bar|hat|tilde)", content_stripped)) or ("^" in content_stripped or "_" in content_stripped)
+
+        # Auto-wrap if no explicit delimiters but likely LaTeX
+        content_for_render = content_stripped
+        if content_stripped and not any(tok in content_stripped for tok in ("\\documentclass", "\\(", "\\[")) and content_stripped.count("$") < 2:
+            if probable_latex:
+                # Choose display for multiline or block-like content; inline otherwise
+                is_multiline = "\n" in content_stripped or content_stripped.startswith("$$") or content_stripped.endswith("$$") or "\\begin" in content_stripped
+                if is_multiline:
+                    content_for_render = "\\[" + content_stripped.strip("$") + "\\]"
+                else:
+                    content_for_render = "$" + content_stripped.strip("$") + "$"
+                has_latex_markers = True
+
         # Only proceed if allowed and markers found
-        if (in_dm or enable_guild_msgs) and has_latex_markers and content_stripped:
+        if (in_dm or enable_guild_msgs) and has_latex_markers and content_for_render:
             try:
                 user_id = message.author.id
                 session_id = f"{message.id}_{user_id}"
-                image_stream, pdf_stream = self.converter.convertExpression(content_stripped, user_id, session_id, returnPdf=True)
+                image_stream, pdf_stream = self.converter.convertExpression(content_for_render, user_id, session_id, returnPdf=True)
                 image_stream.seek(0)
                 pdf_stream.seek(0)
                 files = [
