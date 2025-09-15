@@ -49,6 +49,7 @@ python main.py
 Slash commands:
 - `/start` — welcome and quick usage guide
 - `/latex code:"$x^2$"` — render to PNG and PDF
+- `/overleaf` — open a modal with a large code editor-style input to write LaTeX and render
 - `/settings` — configure caption, DPI, and edit preamble
 - `/setdpi 300` — set rendering DPI (100-1000)
 - `/getmypreamble` — show your current preamble
@@ -65,6 +66,14 @@ Besides `/latex`, you can simply type LaTeX in DMs or in servers (if `DISCORD_EN
 - Code fences: use ```latex ... ``` and the bot will render the code inside
 
 If you type LaTeX-like content without delimiters (e.g., `\frac{a}{b}`), the bot will auto-wrap it: single-line becomes inline `$...$`; multi-line or block-like becomes display `\[...\]`.
+
+### Overleaf-like modal editor
+
+Prefer a focused editor experience? Use `/overleaf`:
+
+- Opens a modal with a large multi-line input for LaTeX
+- Paste a full document (with `\documentclass`) or just an expression
+- On submit, you’ll receive both PNG and PDF, same as `/latex`
 
 ### PDF margins and layout
 

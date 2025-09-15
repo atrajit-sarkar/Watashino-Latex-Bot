@@ -61,6 +61,40 @@ class SettingsView(discord.ui.View):
         await interaction.response.send_modal(PreambleModal(self.pm, self.rm, interaction.user.id))
 
 
+class OverleafModal(discord.ui.Modal, title="Overleaf-like LaTeX Editor"):
+    code = discord.ui.TextInput(
+        label="LaTeX code",
+        style=discord.TextStyle.paragraph,
+        required=True,
+        max_length=4000,
+        placeholder="Paste or type your LaTeX here. Use $...$ for inline math or \\[...\\] for display."
+    )
+
+    def __init__(self):
+        super().__init__()
+        self.logger = LoggingServer.getInstance()
+
+    async def on_submit(self, interaction: discord.Interaction):
+        # Render like normal DM code handling: return PNG + PDF
+        await interaction.response.defer(thinking=True)
+        try:
+            user_id = interaction.user.id
+            session_id = f"{interaction.id}_{user_id}"
+            image_stream, pdf_stream = bot.converter.convertExpression(str(self.code.value), user_id, session_id, returnPdf=True)
+            image_stream.seek(0)
+            pdf_stream.seek(0)
+            files = [
+                discord.File(fp=image_stream, filename="expression.png"),
+                discord.File(fp=pdf_stream, filename="expression.pdf")
+            ]
+            await interaction.followup.send(files=files)
+        except ValueError as err:
+            await interaction.followup.send(f"Syntax error or processing issue:\n{err}", ephemeral=True)
+        except Exception as err:
+            self.logger.warn("Unhandled exception in OverleafModal: %s", str(err))
+            await interaction.followup.send(f"Unexpected error during rendering. {type(err).__name__}: {err}", ephemeral=True)
+
+
 class InLatexDiscordBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
@@ -80,11 +114,27 @@ class InLatexDiscordBot(commands.Bot):
 
     async def setup_hook(self) -> None:
         guild_id = os.environ.get("DISCORD_GUILD_ID")
+        # Always sync global so commands appear in DMs and all guilds (global propagation may take up to ~1 hour)
+        try:
+            global_cmds = await self.tree.sync()
+            self.logger.debug("Synced %d global application commands.", len(global_cmds))
+        except Exception as e:
+            self.logger.warn("Global command sync failed: %s", e)
+
+        # If a guild is specified, also copy and sync to that guild for instant availability
         if guild_id and guild_id.isdigit():
             guild = discord.Object(id=int(guild_id))
-            await self.tree.sync(guild=guild)
-        else:
-            await self.tree.sync()
+            try:
+                # Ensure the current global commands are present in the guild tree
+                self.tree.copy_global_to(guild=guild)
+            except Exception:
+                # It's fine if this fails due to duplication
+                pass
+            try:
+                guild_cmds = await self.tree.sync(guild=guild)
+                self.logger.debug("Synced %d guild application commands to guild %s.", len(guild_cmds), guild_id)
+            except Exception as e:
+                self.logger.warn("Guild command sync failed for guild %s: %s", guild_id, e)
 
     async def on_ready(self):
         self.logger.debug("Discord bot logged in as %s", self.user.name)
@@ -194,6 +244,7 @@ async def start_cmd(interaction: discord.Interaction):
         "Welcome to Watashino LaTeX Bot!\n\n"
         "How to use:\n"
         "- Use the slash command `/latex` with your code: e.g. `$x^2$`.\n"
+        "- Prefer a full-screen editor? Use `/overleaf` to open a modal and type LaTeX comfortably.\n"
         "- Or just type LaTeX directly in chat/DMs: `$e^{i\\pi}+1=0$`.\n"
         "- Display math: `\\[\\int_0^1 x^2\\,dx\\]`.\n"
         "- Code fences: ```latex ... ``` will also render.\n\n"
@@ -263,6 +314,11 @@ async def setcustompreamble_cmd(interaction: discord.Interaction):
     modal = PreambleModal(bot.pm, bot.rm, interaction.user.id)
     await interaction.response.send_modal(modal)
 
+@bot.tree.command(name="overleaf", description="Open a modal to type LaTeX in a code-like editor and render it")
+async def overleaf_cmd(interaction: discord.Interaction):
+    modal = OverleafModal()
+    await interaction.response.send_modal(modal)
+
 
 def run():
     token = os.environ.get("DISCORD_TOKEN")
@@ -287,6 +343,32 @@ async def diagnose_cmd(interaction: discord.Interaction):
     else:
         lines.append("Ghostscript: NOT FOUND — install Ghostscript and ensure 'gs', 'gswin64c' or 'gswin32c' is on PATH")
     await interaction.followup.send("\n".join(lines), ephemeral=True)
+
+
+@bot.tree.command(name="resync", description="Force re-sync of application commands (global + optional guild)")
+async def resync_cmd(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+    results = []
+    # Global sync
+    try:
+        global_cmds = await bot.tree.sync()
+        results.append(f"Global commands synced: {len(global_cmds)}")
+    except Exception as e:
+        results.append(f"Global sync failed: {type(e).__name__}: {e}")
+    # Guild sync if configured
+    guild_id = os.environ.get("DISCORD_GUILD_ID")
+    if guild_id and guild_id.isdigit():
+        try:
+            guild = discord.Object(id=int(guild_id))
+            try:
+                bot.tree.copy_global_to(guild=guild)
+            except Exception:
+                pass
+            guild_cmds = await bot.tree.sync(guild=guild)
+            results.append(f"Guild {guild_id} commands synced: {len(guild_cmds)}")
+        except Exception as e:
+            results.append(f"Guild sync failed for {guild_id}: {type(e).__name__}: {e}")
+    await interaction.followup.send("\n".join(results), ephemeral=True)
 
 
 if __name__ == "__main__":
